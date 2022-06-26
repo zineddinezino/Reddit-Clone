@@ -1,6 +1,7 @@
 package com.example.RedditClone.service;
 
 import com.example.RedditClone.dto.RegisterRequestData;
+import com.example.RedditClone.model.EmailNotification;
 import com.example.RedditClone.model.TokenVerification;
 import com.example.RedditClone.model.User;
 import com.example.RedditClone.repository.TokenVerificationRepository;
@@ -23,6 +24,8 @@ public class UserAuthService {
 
     private final TokenVerificationRepository tokenVerificationRepository;
 
+    private final MailService mailService;
+
     @Transactional
     public void signup(RegisterRequestData registerRequestData){
         User user = new User();
@@ -37,6 +40,14 @@ public class UserAuthService {
 
         // the token generation & sending the token by email
         String token = TokenVerificationGenerator(user);
+        mailService.sendEmail(new EmailNotification(
+                "Please activate your account",
+                user.getUserEmail(),
+                "Hello "+user.getUserName()+",\n" +"Welcome to the Cloned version of Reddit!\n" +
+                        "We thank you for your registration on our site and we are happy to share with you our reddits! \n"+
+                        "To activate your account please click on the link below : "+
+                        "http://localhost:8080/api/auth/accountActivation/"+ token
+        ));
 
     }
 
