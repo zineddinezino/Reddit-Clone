@@ -32,7 +32,7 @@ public class User {
     @NotEmpty(message = "The email is required")
     private String userEmail;
 
-    private Instant userCreatedData;
+    private Instant userCreatedDate;
 
     private boolean accountEnabled;
 
