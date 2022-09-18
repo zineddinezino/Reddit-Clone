@@ -1,17 +1,26 @@
 package com.example.RedditClone.service;
 
+import com.example.RedditClone.dto.AuthenticationResponse;
+import com.example.RedditClone.dto.LoginRequestData;
 import com.example.RedditClone.dto.RegisterRequestData;
+import com.example.RedditClone.exception.RedditCloneException;
 import com.example.RedditClone.model.EmailNotification;
 import com.example.RedditClone.model.TokenVerification;
 import com.example.RedditClone.model.User;
 import com.example.RedditClone.repository.TokenVerificationRepository;
 import com.example.RedditClone.repository.UserRepository;
+import com.example.RedditClone.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +34,10 @@ public class UserAuthService {
     private final TokenVerificationRepository tokenVerificationRepository;
 
     private final MailService mailService;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public void signup(RegisterRequestData registerRequestData){
@@ -59,5 +72,30 @@ public class UserAuthService {
         tokenVerificationRepository.save(tokenVerification);
         return token;
 
+    }
+
+    public void tokenVerification(String token) {
+        Optional<TokenVerification> verificationOptional = tokenVerificationRepository.findByToken(token);
+        verificationOptional.orElseThrow(() -> new RedditCloneException("Invalid token"));
+
+        // Get the user using the token and enable the account
+        fetchUserEnable(verificationOptional.get());
+    }
+
+    @Transactional
+    private void fetchUserEnable(TokenVerification tokenVerification) {
+        String userName = tokenVerification.getUser().getUserName();
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> new RedditCloneException("User not found"));
+        user.setAccountEnabled(true);
+        userRepository.save(user);
+    }
+
+    public AuthenticationResponse login(LoginRequestData loginRequestData) {
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequestData.getUsername(), loginRequestData.getPassword()
+        ));
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = jwtProvider.generateToken(authenticate);
+        return new AuthenticationResponse(token, loginRequestData.getUsername());
     }
 }
