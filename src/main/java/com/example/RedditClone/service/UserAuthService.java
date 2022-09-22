@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,5 +98,17 @@ public class UserAuthService {
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
         return new AuthenticationResponse(token, loginRequestData.getUsername());
+    }
+
+    @Transactional(readOnly = true)
+    public User getCurrentLoggedUser(){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userName;
+        if(principal instanceof UserDetails){
+            userName = ((UserDetails)principal).getUsername();
+        }else{
+            userName = principal.toString();
+        }
+        return userRepository.findByUserName(userName).orElseThrow(() -> new RedditCloneException("User not found"));
     }
 }

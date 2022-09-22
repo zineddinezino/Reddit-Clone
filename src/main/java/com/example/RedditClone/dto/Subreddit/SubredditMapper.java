@@ -1,7 +1,6 @@
-package com.example.RedditClone.dto.mappers;
+package com.example.RedditClone.dto.Subreddit;
 
 
-import com.example.RedditClone.dto.SubredditDto;
 import com.example.RedditClone.model.Post;
 import com.example.RedditClone.model.Subreddit;
 import org.mapstruct.InheritInverseConfiguration;

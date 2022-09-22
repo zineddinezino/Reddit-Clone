@@ -1,4 +1,4 @@
-package com.example.RedditClone.dto;
+package com.example.RedditClone.dto.Subreddit;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

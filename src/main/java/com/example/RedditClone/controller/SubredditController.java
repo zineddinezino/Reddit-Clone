@@ -1,6 +1,6 @@
 package com.example.RedditClone.controller;
 
-import com.example.RedditClone.dto.SubredditDto;
+import com.example.RedditClone.dto.Subreddit.SubredditDto;
 import com.example.RedditClone.service.SubredditService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
