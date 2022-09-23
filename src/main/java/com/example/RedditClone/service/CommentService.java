@@ -3,6 +3,7 @@ package com.example.RedditClone.service;
 import com.example.RedditClone.dto.comment.CommentDto;
 import com.example.RedditClone.dto.comment.CommentMapper;
 import com.example.RedditClone.exception.RedditCloneException;
+import com.example.RedditClone.model.EmailNotification;
 import com.example.RedditClone.model.Post;
 import com.example.RedditClone.model.User;
 import com.example.RedditClone.repository.CommentRepository;
@@ -24,12 +25,22 @@ public class CommentService {
     private PostRepository postRepository;
     private UserAuthService userAuthService;
     private CommentRepository commentRepository;
-
     private UserRepository userRepository;
+    private MailContentBuilder mailContentBuilder;
+    private MailService mailService;
 
     public void createComment(CommentDto commentDto){
         Post post = postRepository.findById(commentDto.getPostId()).orElseThrow(() -> new RedditCloneException("Post not found"));
         commentRepository.save(commentMapper.toModel(commentDto, post, userAuthService.getCurrentLoggedUser()));
+        // Sending a notification
+        // creating the body of the notification
+        String message = mailContentBuilder.build(post.getUser().getUserName() +" has commented in your post");
+        mailService.sendEmail(new EmailNotification(
+                "New comment in your post",
+                post.getUser().getUserEmail(),
+                message
+        ));
+
 
     }
 
