@@ -4,8 +4,10 @@ import com.example.RedditClone.dto.comment.CommentDto;
 import com.example.RedditClone.dto.comment.CommentMapper;
 import com.example.RedditClone.exception.RedditCloneException;
 import com.example.RedditClone.model.Post;
+import com.example.RedditClone.model.User;
 import com.example.RedditClone.repository.CommentRepository;
 import com.example.RedditClone.repository.PostRepository;
+import com.example.RedditClone.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,14 +25,25 @@ public class CommentService {
     private UserAuthService userAuthService;
     private CommentRepository commentRepository;
 
+    private UserRepository userRepository;
+
     public void createComment(CommentDto commentDto){
         Post post = postRepository.findById(commentDto.getPostId()).orElseThrow(() -> new RedditCloneException("Post not found"));
         commentRepository.save(commentMapper.toModel(commentDto, post, userAuthService.getCurrentLoggedUser()));
+
     }
 
     public List<CommentDto> getCommentsByPostId(Long postId){
         Post post = postRepository.findById(postId).orElseThrow(() -> new RedditCloneException("Post not found"));
         return commentRepository.findByPost(post)
+                .stream()
+                .map(commentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<CommentDto> getCommentsByUserName(String userName){
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> new RedditCloneException("User not found"));
+        return commentRepository.findCommentByUser(user)
                 .stream()
                 .map(commentMapper::toDTO)
                 .collect(Collectors.toList());
