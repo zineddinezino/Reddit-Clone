@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("SELECT * FROM Post p WHERE p.postId = ?1")
+    @Query(value = "SELECT * FROM Post p WHERE p.postId = ?1", nativeQuery = true)
     Optional<List<Post>> findPostsByUserId(Long userId);
 }

@@ -31,7 +31,7 @@ public class PostService {
     private final UserRepository userRepository;
 
     public void createPost(PostRequestDto postRequestDto){
-        Subreddit subreddit = subredditRepository.findByName(postRequestDto.getSubredditName())
+        Subreddit subreddit = subredditRepository.findBySubredditName(postRequestDto.getSubredditName())
                 .orElseThrow(() -> new RedditCloneException("Subreddit not found"));
         postRepository.save(postMapper.toModel(postRequestDto, subreddit, userAuthService.getCurrentLoggedUser()));
 

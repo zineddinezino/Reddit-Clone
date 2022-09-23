@@ -34,7 +34,7 @@ public class CommentService {
         commentRepository.save(commentMapper.toModel(commentDto, post, userAuthService.getCurrentLoggedUser()));
         // Sending a notification
         // creating the body of the notification
-        String message = mailContentBuilder.build(post.getUser().getUserName() +" has commented in your post");
+        String message = mailContentBuilder.build(userAuthService.getCurrentLoggedUser() +" has commented in your post");
         mailService.sendEmail(new EmailNotification(
                 "New comment in your post",
                 post.getUser().getUserEmail(),

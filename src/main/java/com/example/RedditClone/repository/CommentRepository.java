@@ -13,9 +13,9 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 
-    @Query("SELECT * FROM Comment c WHERE c.post = ?1")
+    @Query(value = "SELECT * FROM Comment c WHERE c.post = ?1", nativeQuery = true)
     List<Comment> findByPost(Post post);
 
-    @Query("SELECT * FROM Comment c WHERE c.user = ?1")
+    @Query(value = "SELECT * FROM Comment c WHERE c.user = ?1", nativeQuery = true)
     List<Comment> findCommentByUser(User user);
 }

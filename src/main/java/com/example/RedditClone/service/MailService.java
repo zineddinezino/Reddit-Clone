@@ -26,7 +26,7 @@ public class MailService {
             messageHelper.setFrom("ervar_reddit@reddit.com");
             messageHelper.setTo(emailNotification.getEmailReceiver());
             messageHelper.setSubject(emailNotification.getEmailSubject());
-            messageHelper.setText(mailContentBuilder.build(emailNotification.getEmailBody()));
+            messageHelper.setText(emailNotification.getEmailBody());
         };
         try {
             javaMailSender.send(mimeMessagePreparator);
