@@ -15,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,13 +101,16 @@ public class UserAuthService {
 
     @Transactional(readOnly = true)
     public User getCurrentLoggedUser(){
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userName;
-        if(principal instanceof UserDetails){
-            userName = ((UserDetails)principal).getUsername();
-        }else{
-            userName = principal.toString();
-        }
-        return userRepository.findByUserName(userName).orElseThrow(() -> new RedditCloneException("User not found"));
+//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        String userName;
+//        if(principal instanceof UserDetails){
+//            userName = ((UserDetails)principal).getUsername();
+//        }else{
+//            userName = principal.toString();
+//        }
+//        return userRepository.findByUserName(userName).orElseThrow(() -> new RedditCloneException("User not found"));
+        //Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByUserName(principal.getUsername()).orElseThrow(() -> new RedditCloneException("User not found"));
     }
 }
