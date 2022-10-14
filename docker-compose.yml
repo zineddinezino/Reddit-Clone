@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:14.1-alpine
     environment:
-      - POSTGRES_PASSWORD=secret
+      - POSTGRES_PASSWORD=root
     ports:
       - "5432:5432"
     command: [ "postgres", "-c", "log_statement=all" ]

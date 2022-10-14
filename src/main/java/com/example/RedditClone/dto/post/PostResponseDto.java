@@ -14,4 +14,7 @@ public class PostResponseDto {
     private String postName;
     private String postUrl;
     private String postDescription;
+    private Integer commentCont;
+    private Integer postVotingCount;
+    private String duration;
 }
