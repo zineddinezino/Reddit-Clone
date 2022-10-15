@@ -2,6 +2,7 @@ package com.example.RedditClone.service;
 
 import com.example.RedditClone.dto.AuthenticationResponse;
 import com.example.RedditClone.dto.LoginRequestData;
+import com.example.RedditClone.dto.RefreshTokenRequest;
 import com.example.RedditClone.dto.RegisterRequestData;
 import com.example.RedditClone.exception.RedditCloneException;
 import com.example.RedditClone.model.EmailNotification;
@@ -28,16 +29,12 @@ import java.util.UUID;
 public class UserAuthService {
 
     private final PasswordEncoder passwordEncoder;
-
     private final UserRepository userRepository;
-
     private final TokenVerificationRepository tokenVerificationRepository;
-
     private final MailService mailService;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public void signup(RegisterRequestData registerRequestData){
@@ -96,7 +93,12 @@ public class UserAuthService {
         ));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
-        return new AuthenticationResponse(token, loginRequestData.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                .tokenExpiresTime(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .username(loginRequestData.getUsername())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -112,5 +114,16 @@ public class UserAuthService {
         //Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByUserName(principal.getUsername()).orElseThrow(() -> new RedditCloneException("User not found"));
+    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtProvider.generateTokenWithUsername(getCurrentLoggedUser().getUserName());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .username(getCurrentLoggedUser().getUserName())
+                .tokenExpiresTime(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+                .build();
     }
 }

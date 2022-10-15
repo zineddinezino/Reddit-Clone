@@ -20,28 +20,28 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Void> createPost(@RequestBody PostRequestDto postRequestDto){
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createPost(@RequestBody PostRequestDto postRequestDto) {
         postService.createPost(postRequestDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> getAllPosts(){
+    public ResponseEntity<List<PostResponseDto>> getAllPosts() {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getAllPosts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id){
+    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPost(id));
     }
 
     @GetMapping("/bySubreddit/{id}")
-    public ResponseEntity<List<PostResponseDto>> getPostBySubredditId(@PathVariable Long id){
+    public ResponseEntity<List<PostResponseDto>> getPostBySubredditId(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPostUnderSubreddit(id));
     }
 
     @GetMapping("/byUsername/{name}")
-    public ResponseEntity<List<PostResponseDto>> getPostsByUserName(@PathVariable String userName){
+    public ResponseEntity<List<PostResponseDto>> getPostsByUserName(@PathVariable String userName) {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPostsUnderUserName(userName));
     }
 }

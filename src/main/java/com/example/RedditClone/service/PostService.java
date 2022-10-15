@@ -30,20 +30,21 @@ public class PostService {
     private final UserAuthService userAuthService;
     private final UserRepository userRepository;
 
-    public void createPost(PostRequestDto postRequestDto){
+    public void createPost(PostRequestDto postRequestDto) {
         Subreddit subreddit = subredditRepository.findBySubredditName(postRequestDto.getSubredditName())
                 .orElseThrow(() -> new RedditCloneException("Subreddit not found"));
         postRepository.save(postMapper.toModel(postRequestDto, subreddit, userAuthService.getCurrentLoggedUser()));
 
     }
+
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(Long postId){
+    public PostResponseDto getPost(Long postId) {
         return postMapper.toDTO(postRepository.findById(postId)
                 .orElseThrow(() -> new RedditCloneException("Post not found")));
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getAllPosts(){
+    public List<PostResponseDto> getAllPosts() {
         return postRepository.findAll()
                 .stream()
                 .map(postMapper::toDTO)
@@ -51,7 +52,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPostUnderSubreddit(Long subredditId){
+    public List<PostResponseDto> getPostUnderSubreddit(Long subredditId) {
         Subreddit subreddit = subredditRepository.findById(subredditId).orElseThrow(() -> new RedditCloneException("Subreddit not found"));
         return subreddit.getPosts()
                 .stream()
@@ -60,7 +61,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPostsUnderUser(Long userId){
+    public List<PostResponseDto> getPostsUnderUser(Long userId) {
         List<Post> posts = postRepository.findPostsByUserId(userId)
                 .orElseThrow(() -> new RedditCloneException("user posts not found"));
         return posts.stream()
@@ -69,7 +70,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPostsUnderUserName(String userName){
+    public List<PostResponseDto> getPostsUnderUserName(String userName) {
         User user = userRepository.findByUserName(userName).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
         List<Post> posts = postRepository.findPostsByUserId(user.getUserId())
                 .orElseThrow(() -> new RedditCloneException("user posts not found"));
