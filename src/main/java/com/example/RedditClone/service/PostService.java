@@ -39,7 +39,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostResponseDto getPost(Long postId) {
-        return postMapper.toDTO(postRepository.findById(postId)
+        return postMapper.toDTO(postRepository
+                .findById(postId)
                 .orElseThrow(() -> new RedditCloneException("Post not found")));
     }
 
