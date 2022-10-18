@@ -46,7 +46,7 @@ public class CommentService {
 
     public List<CommentDto> getCommentsByPostId(Long postId){
         Post post = postRepository.findById(postId).orElseThrow(() -> new RedditCloneException("Post not found"));
-        return commentRepository.findByPost(post)
+        return commentRepository.findByPost(post.getPostId())
                 .stream()
                 .map(commentMapper::toDTO)
                 .collect(Collectors.toList());

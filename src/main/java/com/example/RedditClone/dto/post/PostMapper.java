@@ -17,7 +17,7 @@ public abstract class PostMapper {
     @Mapping(target = "userName", source = "user.userName")
     @Mapping(target = "subredditName", source = "subreddit.subredditName")
     @Mapping(target = "commentCont", expression = "java(countComments(post))")
-    @Mapping(target = "duration", expression = "java(getDuration(post))")
+    @Mapping(target = "duration", expression = "java(String.valueOf(java.time.Instant.now()))") //getDuration must be used here
     public abstract PostResponseDto toDTO(Post post);
 
 
@@ -29,7 +29,7 @@ public abstract class PostMapper {
         return TimeAgo.using(post.getPostCreatedDate().toEpochMilli());
     }
     Integer countComments(Post post){
-        return commentRepository.findByPost(post).size();
+        return commentRepository.findByPost(post.getPostId()).size();
     }
 
 
