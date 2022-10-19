@@ -1,12 +1,12 @@
 package com.example.RedditClone.Post;
 
-import com.example.RedditClone.dto.post.PostMapper;
 import com.example.RedditClone.dto.post.PostResponseDto;
 import com.example.RedditClone.model.Post;
 import com.example.RedditClone.model.Subreddit;
 import com.example.RedditClone.model.User;
 import com.example.RedditClone.repository.PostRepository;
-import com.example.RedditClone.service.PostService;
+import com.example.RedditClone.repository.UserRepository;
+import com.example.RedditClone.security.JwtProvider;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,16 +26,19 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc()
 class PostControllerIntegrationTest {
 
     @MockBean
     private PostRepository postRepository;
+
+    @MockBean
+    private UserRepository userRepository;
+
     @Autowired
-    private PostMapper postMapper;
-    @Autowired
-    private PostService postService;
+    private JwtProvider jwtProvider;
     private Post post;
+    private User user;
     @Autowired
     private MockMvc mockMvc;
 
@@ -44,19 +47,33 @@ class PostControllerIntegrationTest {
     void should_return_post_when_get_post_by_id() throws Exception {
 
         var post = buildPost();
+        var user = buildUser();
+        String token = jwtProvider.generateTokenWithUsername("user");
 
-        var postResponseDto = buildPostResponseDto();
-
+        Mockito.when(userRepository.findByUserName("user"))
+                .thenReturn(Optional.of(user));
         Mockito.when(postRepository.findById(1L))
                 .thenReturn(Optional.of(post));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/api/posts/1")
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.postName", Matchers.is("Get Post Test")));
         Mockito.verify(postRepository, Mockito.times(1)).findById(1L);
 
+    }
+
+    private User buildUser() {
+        return User.builder()
+                .userId(1L)
+                .userName("user")
+                .password("1234")
+                .userEmail("user@gmail.com")
+                .userCreatedDate(Instant.now())
+                .accountEnabled(true)
+                .build();
     }
 
     private PostResponseDto buildPostResponseDto() {

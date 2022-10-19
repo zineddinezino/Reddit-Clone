@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 
@@ -23,9 +22,10 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username)  {
-        Optional<User> optionalUser = userRepository.findByUserName(username);
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("This username does not exist"));
+    public UserDetails loadUserByUsername(String username) {
+
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UsernameNotFoundException("This username does not exist"));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUserName(), user.getPassword(), user.isAccountEnabled(),
